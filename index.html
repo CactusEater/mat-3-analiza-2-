@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matematika III — Analiza izpitnih nalog</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --border: #2a2a32;
+    --accent: #e8c848;
+    --accent2: #5b8fff;
+    --accent3: #ff6b6b;
+    --text: #e8e8ec;
+    --muted: #888898;
+    --tag-bg: #1e1e26;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Grid noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 4rem 2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 600px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Filter chips */
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: var(--tag-bg);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.05em;
+  }
+
+  .chip:hover, .chip.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232, 200, 72, 0.08);
+  }
+
+  /* Task cards */
+  .tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    overflow: hidden;
+  }
+
+  .task-card:hover {
+    border-color: var(--border);
+    border-left-color: var(--accent);
+    background: #1a1a20;
+  }
+
+  .task-header {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--border);
+    text-align: center;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+
+  .task-card:hover .rank,
+  .task-card.open .rank {
+    color: var(--accent);
+  }
+
+  .task-info h2 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .task-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+  }
+
+  .badge-cat {
+    background: rgba(91, 143, 255, 0.12);
+    color: var(--accent2);
+    border: 1px solid rgba(91, 143, 255, 0.25);
+  }
+
+  .badge-pts {
+    background: rgba(232, 200, 72, 0.08);
+    color: var(--accent);
+    border: 1px solid rgba(232, 200, 72, 0.2);
+  }
+
+  .freq-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+    min-width: 90px;
+  }
+
+  .freq-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .freq-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .freq-bar-outer {
+    width: 80px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .freq-bar-inner {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* Expand panel */
+  .task-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+  }
+
+  .task-card.open .task-body {
+    display: block;
+  }
+
+  .task-description {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin: 1rem 0 1.25rem;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+
+  .exams-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .exams-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .exam-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .exam-pill:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(91, 143, 255, 0.08);
+  }
+
+  .exam-pill::before {
+    content: '↗';
+    font-size: 0.6rem;
+    opacity: 0.6;
+  }
+
+  .toggle-icon {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    transition: transform 0.2s ease;
+    padding-left: 0.5rem;
+  }
+
+  .task-card.open .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Heatmap section */
+  .heatmap-section {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: 140px repeat(20, 1fr);
+    gap: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    overflow-x: auto;
+  }
+
+  .hm-header {
+    color: var(--muted);
+    writing-mode: vertical-rl;
+    text-align: left;
+    padding: 4px 2px;
+    letter-spacing: 0.05em;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    max-height: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hm-row-label {
+    color: var(--muted);
+    padding: 4px 6px 4px 0;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hm-cell {
+    border-radius: 2px;
+    height: 22px;
+    transition: opacity 0.15s;
+  }
+
+  .hm-cell:hover { opacity: 0.8; }
+  .hm-cell.yes { background: var(--accent); }
+  .hm-cell.no  { background: var(--border); }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 600px) {
+    .task-header { grid-template-columns: 2.5rem 1fr; }
+    .freq-info { display: none; }
+    .heatmap-grid { font-size: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Univerza · Matematika III · 2021–2026</div>
+  <h1>Analiza<br><span>izpitnih nalog</span></h1>
+  <p class="subtitle">Tipske naloge razvrščene po pogostosti pojavljanja na 20 izpitih iz Matematike III (2021–2026), z neposrednimi povezavami do PDF izpitov.</p>
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-num">20</span>
+      <span class="stat-label">izpitov</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">14</span>
+      <span class="stat-label">tipskih nalog</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">2021</span>
+      <span class="stat-label">— 2026</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Filter chips -->
+  <div class="section-title" style="margin-top:2rem;">Filtriraj po tematskem sklopu</div>
+  <div class="filters">
+    <div class="chip active" data-filter="all">Vse naloge</div>
+    <div class="chip" data-filter="kompleksna">Kompleksna analiza</div>
+    <div class="chip" data-filter="integrali">Večkratni integrali</div>
+    <div class="chip" data-filter="krivuljni">Krivuljni integrali</div>
+    <div class="chip" data-filter="ploskve">Ploskve &amp; površinski integrali</div>
+    <div class="chip" data-filter="vektorska">Vektorska analiza</div>
+    <div class="chip" data-filter="parametri">Integrali s parametri</div>
+  </div>
+
+  <!-- Task list -->
+  <div class="tasks-list" id="tasksList"></div>
+
+  <!-- Heatmap -->
+  <div class="heatmap-section">
+    <div class="section-title">Prisotnost po izpitih</div>
+    <div class="heatmap-grid" id="heatmap"></div>
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:0.75rem;">
+      <span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;margin-right:4px;vertical-align:middle;"></span> naloga prisotna &nbsp;&nbsp;
+      <span style="display:inline-block;width:10px;height:10px;background:var(--border);border-radius:2px;margin-right:4px;vertical-align:middle;"></span> naloga odsotna
+    </p>
+  </div>
+
+</main>
+
+<footer>Podatki pridobljeni iz 20 izpitov Matematike III · UL FMF/FE/FRI · 2021–2026</footer>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const exams = [
+  { id: "2021_2", label: "feb 2021",   file: "izp_mat3_2021_2.pdf" },
+  { id: "2021_3", label: "jun 2021",   file: "izp_mat3_2021_3.pdf" },
+  { id: "2021_4", label: "avg 2021",   file: "izp_mat3_2021_4.pdf" },
+  { id: "2022_1", label: "jan 2022",   file: "izp_mat3_2022_1.pdf" },
+  { id: "2022_2", label: "jun 2022",   file: "izp_mat3_2022_2.pdf" },
+  { id: "2022_3", label: "avg 2022",   file: "izp_mat3_2022_3.pdf" },
+  { id: "2022_4", label: "feb 2022",   file: "izp_mat3_2022_4.pdf" },
+  { id: "2023_1", label: "jan 2023",   file: "izp_mat3_2023_1.pdf" },
+  { id: "2023_2", label: "jun 2023",   file: "izp_mat3_2023_2.pdf" },
+  { id: "2023_3", label: "avg 2023a",  file: "izp_mat3_2023_3.pdf" },
+  { id: "2023_4", label: "avg 2023b",  file: "izp_mat3_2023_4.pdf" },
+  { id: "2024_1", label: "feb 2024",   file: "izp_mat3_2024_1.pdf" },
+  { id: "2024_2", label: "jun 2024",   file: "izp_mat3_2024_2.pdf" },
+  { id: "2024_3", label: "avg 2024",   file: "izp_mat3_2024_3.pdf" },
+  { id: "2025_1", label: "jan 2025",   file: "izp_mat3_2025_1.pdf" },
+  { id: "2025_2", label: "feb 2025",   file: "izp_mat3_2025_2.pdf" },
+  { id: "2025_3", label: "jun 2025",   file: "izp_mat3_2025_3.pdf" },
+  { id: "2025_4", label: "avg 2025",   file: "izp_mat3_2025_4.pdf" },
+  { id: "2026_1", label: "jan 2026",   file: "izp_mat3_2026_1.pdf" },
+  { id: "2026_2", label: "feb 2026",   file: "izp_mat3_2026_2.pdf" },
+];
+
+const tasks = [
+  {
+    id: 1,
+    title: "Krivuljni integral 2. vrste — Green / Stokes",
+    category: "krivuljni",
+    catLabel: "Krivuljni integrali",
+    avgPts: 25,
+    description: "Izračun krivuljnega integrala druge vrste po zaključeni krivulji s pomočjo Greenove formule (ravninski primer) ali Stokesovega izreka (prostorski primer). Pogosto je krivulja podana kot presek dveh ploskev ali sestavljena krivulja. Naloga praviloma zahteva izračun rotorja, izbiro ploskve in izpeljavo dvojnega integrala.",
+    exams: ["2021_2","2021_3","2022_1","2022_3","2022_4","2023_1","2023_2","2023_4","2024_1","2024_2","2024_3","2025_2","2025_4","2026_2"],
+  },
+  {
+    id: 2,
+    title: "Laurentova vrsta in residui",
+    category: "kompleksna",
+    catLabel: "Kompleksna analiza",
+    avgPts: 20,
+    description: "Razvoj funkcije v Laurentovo vrsto na danem kolobarju (pogosto dve območji: 0<|z|<a in a<|z|<∞). Določitev tipa singularnosti (pol k-te stopnje, bistvena singularnost), izračun residuuma in uporaba izreka o residuih za izračun integrala po zaključeni krivulji.",
+    exams: ["2021_3","2021_4","2023_3","2023_4","2025_1","2025_3","2025_4","2026_1","2026_2"],
+  },
+  {
+    id: 3,
+    title: "Površinski integral 2. vrste — Gaussov izrek",
+    category: "ploskve",
+    catLabel: "Ploskve & površinski integrali",
+    avgPts: 25,
+    description: "Izračun pretoka vektorskega polja skozi zaprto ploskev (rob telesa) z Gaussovim izrekom. Naloga zahteva izračun divergence, postavitev trojnega integrala ter pogosto uvedbo cilindričnih ali sfernih koordinat. Telo je tipično valj, krogla, elipsoid ali kombinacija stožcev.",
+    exams: ["2021_4","2022_4","2023_1","2023_3","2023_4","2024_3","2025_1","2025_3","2025_4","2026_2"],
+  },
+  {
+    id: 4,
+    title: "Naravna parametrizacija in dolžina krivulje",
+    category: "ploskve",
+    catLabel: "Ploskve & površinski integrali",
+    avgPts: 20,
+    description: "Naloga v treh delih: (a) dokaz, da je dana parametrizacija naravna (|ṙ|=1), (b) iskanje parametrizacije presečišča dveh ploskev, (c) primerjava dolžin dveh poti — ena s pomočjo naravne parametrizacije, druga z izračunom integrala. Razlika v dolžinah je pogosto elegantna (popolni kvadrat pod korenom).",
+    exams: ["2021_2","2022_1","2023_2","2024_3","2025_3","2025_4","2026_1"],
+  },
+  {
+    id: 5,
+    title: "Kompleksni integral po definiciji (neanalitična f.)",
+    category: "kompleksna",
+    catLabel: "Kompleksna analiza",
+    avgPts: 12,
+    description: "Izračun kompleksnega integrala po definiciji za neanalitično funkcijo (npr. f(z)=z̄+ci). Krivulja je tipično parabola ali daljica; parametriziramo z z=t+ig(t) in integriramo po t. Pojavi se tudi integral z̄ dz po daljici.",
+    exams: ["2021_2","2022_3","2023_2","2023_3","2025_4","2026_2"],
+  },
+  {
+    id: 6,
+    title: "Integral s parametrom — odvajanje in stacionarne točke",
+    category: "parametri",
+    catLabel: "Integrali s parametri",
+    avgPts: 15,
+    description: "Dana je funkcija F(x) ali F(y) kot integral s parametrom z variabilnimi mejami. Naloga zahteva odvajanje po parametru (Leibnizovo pravilo + robni člen), poiskati stacionarne točke (F'=0) ali dokazati, da je F konstantna. Pogosta oblika: F(x)=∫ t^n sin(t) dt z iskanjem ničel odvoda.",
+    exams: ["2022_1","2022_2","2023_1","2023_4","2024_2","2025_1","2025_3","2025_4","2026_1"],
+  },
+  {
+    id: 7,
+    title: "Tangentna ravnina in normala na parametrično ploskev",
+    category: "ploskve",
+    catLabel: "Ploskve & površinski integrali",
+    avgPts: 15,
+    description: "Dana je ploskev z vektorsko parametrizacijo r(u,v). Naloga: poiskati parametre točke T, izračunati tangentna vektorja r_u in r_v, njun vektorski produkt (normala), enačbo tangentne ravnine in normalne premice. Pogosto se pojavlja skupaj z vprašanjem o kotu med koordinatnima krivuljama.",
+    exams: ["2021_4","2022_3","2023_4","2024_1","2025_2","2026_1","2026_2"],
+  },
+  {
+    id: 8,
+    title: "Površinski integral 1. vrste (masa, naboj, površina)",
+    category: "ploskve",
+    catLabel: "Ploskve & površinski integrali",
+    avgPts: 18,
+    description: "Izračun ploskovnega integrala prve vrste: masa ali električni naboj na ploskvi z dano gostoto ρ. Zahteva parametrizacijo ploskve, izračun EFG koeficientov prve fundamentalne forme in integriranje. Tipično: krogla, stožec, paraboloid, valjasta ploskev.",
+    exams: ["2021_3","2021_4","2022_3","2023_2","2023_4","2024_1","2025_2","2026_1"],
+  },
+  {
+    id: 9,
+    title: "Dvojni integral s koordinatno transformacijo",
+    category: "integrali",
+    catLabel: "Večkratni integrali",
+    avgPts: 15,
+    description: "Izračun dvojnega integrala z uvedbo polarnih koordinat ali premaknjenih polarnih koordinat. Integracijsko območje je pogosto krog, polkrog ali kardioida. Naloga zahteva pravilno določitev meja integracije in jakobijana.",
+    exams: ["2021_4","2022_1","2024_2","2025_1","2025_2","2026_1","2026_2"],
+  },
+  {
+    id: 10,
+    title: "Kompleksna enačba (cos z, sin z = kompleksno število)",
+    category: "kompleksna",
+    catLabel: "Kompleksna analiza",
+    avgPts: 15,
+    description: "Reševanje kompleksne enačbe tipa cos z = a+bi ali sin z = a+bi z uvedbo substitucije u=e^(iz). Dobimo kvadratno enačbo za u, logaritmiramo vsako rešitev in dobimo eno ali dve neskončni družini rešitev. Pogosto sledi še integral po krogu, ki vsebuje eno od rešitev.",
+    exams: ["2024_2","2025_3","2026_1"],
+  },
+  {
+    id: 11,
+    title: "Cauchy-Riemannove enačbe — analitičnost in harmoničnost",
+    category: "kompleksna",
+    catLabel: "Kompleksna analiza",
+    avgPts: 13,
+    description: "Preverjanje analitičnosti funkcije f=u+iv: preverimo C-R enačbe (u_x=v_y, u_y=-v_x), ugotovimo ali je f analitična povsod / nikjer / le v točki. Varianta: kateri člen je treba izpustiti iz izraza, da bo u (ali v) harmonična funkcija.",
+    exams: ["2022_1","2022_4","2023_1","2024_1","2025_2"],
+  },
+  {
+    id: 12,
+    title: "Krivuljni integral 1. vrste (naboj, masa na krivulji)",
+    category: "krivuljni",
+    catLabel: "Krivuljni integrali",
+    avgPts: 10,
+    description: "Izračun krivuljnega integrala prve vrste za električni naboj ali maso na krivulji: Q = ∫ρ ds. Zahteva parametrizacijo, izračun |ṙ| in integriranje. Krivulja je tipično heliksa, daljica ali polarna krivulja.",
+    exams: ["2021_3","2022_3","2023_3","2024_1","2022_4"],
+  },
+  {
+    id: 13,
+    title: "Lomljena linearna preslikava — slika območja",
+    category: "kompleksna",
+    catLabel: "Kompleksna analiza",
+    avgPts: 12,
+    description: "Lomljena linearna preslikava w=f(z) slika premice in krožnice v premice in krožnice. Naloga: poiskati sliko danega območja (kroga, polkroga, kota, kolobarja). Metoda: preslikamo 3 robne točke, ugotovimo ali je slika premica ali krožnica, upoštevamo ohranitev orientacije.",
+    exams: ["2023_2","2023_3","2024_1","2025_1"],
+  },
+  {
+    id: 14,
+    title: "Potencialno vektorsko polje — iskanje potenciala",
+    category: "vektorska",
+    catLabel: "Vektorska analiza",
+    avgPts: 15,
+    description: "Preveriti, ali je dano vektorsko polje potencialno (rot V = 0), nato poiskati potencial z integriranjem po komponentah. Varianata: izračun krivuljnega integrala neodvisnega od poti med dvema točkama.",
+    exams: ["2025_1","2026_2"],
+  },
+];
+
+// Sort by frequency descending
+tasks.sort((a, b) => b.exams.length - a.exams.length);
+const maxFreq = tasks[0].exams.length;
+
+// ============================================================
+// RENDER TASKS
+// ============================================================
+function renderTasks(filter) {
+  const list = document.getElementById('tasksList');
+  list.innerHTML = '';
+  const filtered = filter === 'all' ? tasks : tasks.filter(t => t.category === filter);
+  filtered.forEach((task, idx) => {
+    const pct = Math.round((task.exams.length / 20) * 100);
+    const barW = Math.round((task.exams.length / maxFreq) * 100);
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.dataset.cat = task.category;
+    card.innerHTML = `
+      <div class="task-header" onclick="toggleCard(this)">
+        <div class="rank">${String(idx+1).padStart(2,'0')}</div>
+        <div class="task-info">
+          <h2>${task.title}</h2>
+          <div class="task-meta">
+            <span class="badge badge-cat">${task.catLabel}</span>
+            <span class="badge badge-pts">~${task.avgPts}T</span>
+          </div>
+        </div>
+        <div class="freq-info">
+          <span class="freq-count">${task.exams.length}<span style="font-size:0.75rem;color:var(--muted);font-family:'IBM Plex Sans'">/20</span></span>
+          <span class="freq-label">${pct}% izpitov</span>
+          <div class="freq-bar-outer"><div class="freq-bar-inner" style="width:${barW}%"></div></div>
+          <span class="toggle-icon">▾</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <p class="task-description">${task.description}</p>
+        <div class="exams-label">Prisotna na izpitih</div>
+        <div class="exams-grid">
+          ${task.exams.map(eid => {
+            const ex = exams.find(e => e.id === eid);
+            return `<a class="exam-pill" href="${ex.file}" target="_blank">${ex.label}</a>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function toggleCard(header) {
+  const card = header.closest('.task-card');
+  card.classList.toggle('open');
+}
+
+// ============================================================
+// FILTERS
+// ============================================================
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    renderTasks(chip.dataset.filter);
+    renderHeatmap(chip.dataset.filter);
+  });
+});
+
+// ============================================================
+// HEATMAP
+// ============================================================
+function renderHeatmap(filter) {
+  const hm = document.getElementById('heatmap');
+  hm.innerHTML = '';
+  const filtered = filter === 'all' ? tasks : tasks.filter(t => t.category === filter);
+
+  // Corner cell
+  hm.appendChild(Object.assign(document.createElement('div'), {style: ''}));
+
+  // Column headers (exam labels)
+  exams.forEach(ex => {
+    const h = document.createElement('div');
+    h.className = 'hm-header';
+    h.textContent = ex.label;
+    hm.appendChild(h);
+  });
+
+  // Rows
+  filtered.forEach(task => {
+    const lbl = document.createElement('div');
+    lbl.className = 'hm-row-label';
+    lbl.textContent = task.title.length > 28 ? task.title.slice(0,27)+'…' : task.title;
+    hm.appendChild(lbl);
+
+    exams.forEach(ex => {
+      const cell = document.createElement('div');
+      cell.className = 'hm-cell ' + (task.exams.includes(ex.id) ? 'yes' : 'no');
+      cell.title = task.title + ' · ' + ex.label;
+      hm.appendChild(cell);
+    });
+  });
+
+  // Fix grid columns
+  hm.style.gridTemplateColumns = `140px repeat(${exams.length}, 1fr)`;
+}
+
+// Init
+renderTasks('all');
+renderHeatmap('all');
+</script>
+</body>
+</html>
